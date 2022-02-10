@@ -1,67 +1,80 @@
-def get_options_metaclass(
-    class_name: str, meta_attr: str, default_meta_attr: str
-) -> type:
+class ClassOptionsMetaclass(type):
     """
-    Helpers that implements the appropriate metaclass for the Meta-DefaultMeta pattern.
-
-    :param class_name: Name of the class being created.
-    :param meta_attr: Name of the attribute that will hold the class with the metadata.
-    :param default_meta_attr: Name of the attribute that will hold the class with the default values.
-    :return: Metaclass to be used on other classes.
+    Implement namespaced and inheritable metadata at the class level.
     """
+    meta_attr = "Meta"
+    default_meta_attr = "DefaultMeta"
 
-    class Metaclass(type):
-        def __new__(mcs, name, bases, attrs, **kwargs):
-            cls_meta = attrs.get(meta_attr, None)
-            default_meta_cls = attrs.get(default_meta_attr, None)
+    def __new__(mcs, name, bases, attrs, **kwargs):
+        cls = super().__new__(mcs, name, bases, attrs, **kwargs)
 
-            # default_meta_attr should never be a subclass of another default_meta_attr class
-            # default metas are inherited, non default ones are not
-            default_meta_bases = (
-                getattr(base, default_meta_attr)
-                for base in bases
-                if hasattr(base, default_meta_attr)
-            )
+        new_cls_meta = attrs.get(mcs.meta_attr, None)
+        new_cls_default_meta = attrs.get(mcs.default_meta_attr, None)
 
-            cls = super().__new__(mcs, name, bases, attrs, **kwargs)
+        # default_meta_attr should never be a subclass of another default_meta_attr class
+        # default metas are inherited, non default ones are not
 
-            default_meta_cls = mcs.get_default_meta_subclass(
-                default_meta_cls, default_meta_bases
-            )
-            meta_class = mcs.get_meta_subclass(cls_meta, default_meta_cls)
+        default_meta_bases = (
+            getattr(base, mcs.default_meta_attr)
+            for base in bases
+            if hasattr(base, mcs.default_meta_attr)
+        )
 
-            setattr(cls, default_meta_attr, default_meta_cls)
-            setattr(cls, meta_attr, meta_class)
+        new_cls_default_meta = mcs._get_default_meta_subclass(
+            new_cls_default_meta, default_meta_bases
+        )
+        meta_class = mcs._get_meta_subclass(new_cls_meta, new_cls_default_meta)
 
-            return cls
+        setattr(cls, mcs.default_meta_attr, new_cls_default_meta)
+        setattr(cls, mcs.meta_attr, meta_class)
 
-        @classmethod
-        def get_default_meta_subclass(mcs, cls_default_meta, default_meta_bases):
-            if cls_default_meta is not None:
-                bases = (cls_default_meta, *default_meta_bases)
-            else:
-                bases = tuple(default_meta_bases)
+        return cls
 
-            return type(default_meta_attr, bases, {})
+    @classmethod
+    def _get_default_meta_subclass(mcs, new_cls_default_meta, default_meta_bases):
+        """
+        Constructs a default metadata class that inherits other default values.
 
-        @classmethod
-        def get_meta_subclass(mcs, cls_meta: type, default_meta_cls: type):
-            """
-            Returns a Meta with the default values
+        :param new_cls_default_meta: Default metadata class declared in the new class.
+        :param default_meta_bases: Default metadata classes from direct bases.
+        :return: Default metadata class with inherited default values.
+        """
+        if new_cls_default_meta is not None:
+            bases = (new_cls_default_meta, *default_meta_bases)
+        else:
+            bases = tuple(default_meta_bases)
 
-            Args:
-                cls_meta: Class specific Meta class
-                default_meta_cls: Class specific Default Meta class
-            Returns:
-                A new object with the proper Meta class
-            """
+        return type(mcs.default_meta_attr, bases, {})
 
-            # Custom Meta should be at the beginning
-            if cls_meta is not None:
-                bases = (cls_meta, default_meta_cls)
-            else:
-                bases = (default_meta_cls,)
+    @classmethod
+    def _get_meta_subclass(mcs, new_cls_meta: type, default_meta_cls: type):
+        """
+        Returns a metadata class with the class specific values plus default values.
 
-            return type(meta_attr, bases, {})
+        :param new_cls_meta: Metadata class declared in the new class.
+        :param default_meta_cls: Default metadata class to inherit defaults from.
+        :return:
+        """
 
-    return type(class_name, (Metaclass,), {})
+        # Custom Meta should be at the beginning
+        if new_cls_meta is not None:
+            bases = (new_cls_meta, default_meta_cls)
+        else:
+            bases = (default_meta_cls,)
+
+        return type(mcs.meta_attr, bases, {})
+
+    @classmethod
+    def factory(mcs, meta_attr, default_meta_attr):
+        """
+        Returns a ready to use metadata metaclass.
+
+        :param meta_attr: Name of the attribute holding class specific metadata.
+        :param default_meta_attr: Name of the attribute holding default metadata.
+        :return: Metaclass ready to be used.
+        """
+        return type(
+            mcs.__name__,
+            (mcs, type),
+            {"meta_attr": meta_attr, "default_meta_attr": default_meta_attr},
+        )

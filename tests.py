@@ -1,14 +1,12 @@
 from typing import Any
 from unittest import TestCase
 
-from classoptions import get_options_metaclass
+from classoptions import ClassOptionsMetaclass
 
 
 class MetaclassTestCase(TestCase):
     def setUp(self):
-        self.metaclass = get_options_metaclass(
-            "OptionMetaclass", "Options", "DefaultOptions"
-        )
+        self.metaclass = ClassOptionsMetaclass.factory("Options", "DefaultOptions")
 
     def test_simple_inheritance(self):
         class A(metaclass=self.metaclass):
