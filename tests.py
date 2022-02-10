@@ -6,11 +6,13 @@ from classoptions import ClassOptionsMetaclass
 
 class MetaclassTestCase(TestCase):
     def setUp(self):
-        self.metaclass = ClassOptionsMetaclass.factory("Options", "DefaultOptions")
+        self.metaclass = ClassOptionsMetaclass.factory(
+            "Options", "DefaultOptions", "_options"
+        )
 
     def test_simple_inheritance(self):
         class A(metaclass=self.metaclass):
-            Options: Any
+            _options: Any
 
             class DefaultOptions:
                 color = "red"
@@ -24,19 +26,19 @@ class MetaclassTestCase(TestCase):
             class Options:
                 name = "Pencil"
 
-        self.assertEqual(A.Options.color, "red")
-        self.assertEqual(A.Options.size, 2)
+        self.assertEqual(A._options.color, "red")
+        self.assertEqual(A._options.size, 2)
 
-        self.assertEqual(B.Options.color, "blue")
-        self.assertEqual(B.Options.size, 2)
+        self.assertEqual(B._options.color, "blue")
+        self.assertEqual(B._options.size, 2)
 
-        self.assertEqual(C.Options.color, "red")
-        self.assertEqual(C.Options.size, 2)
-        self.assertEqual(C.Options.name, "Pencil")
+        self.assertEqual(C._options.color, "red")
+        self.assertEqual(C._options.size, 2)
+        self.assertEqual(C._options.name, "Pencil")
 
     def test_multiple_inheritance(self):
         class A(metaclass=self.metaclass):
-            Options: Any
+            _options: Any
 
             class DefaultOptions:
                 color = "red"
@@ -60,26 +62,26 @@ class MetaclassTestCase(TestCase):
             class Options:
                 option1 = "other"
 
-        self.assertEqual(A.Options.color, "red")
-        self.assertEqual(A.Options.size, 2)
-        self.assertEqual(A.Options.hello, "world")
+        self.assertEqual(A._options.color, "red")
+        self.assertEqual(A._options.size, 2)
+        self.assertEqual(A._options.hello, "world")
 
-        self.assertEqual(B.Options.color, "blue")
-        self.assertEqual(B.Options.size, 3)
+        self.assertEqual(B._options.color, "blue")
+        self.assertEqual(B._options.size, 3)
 
-        self.assertEqual(C.Options.color, "black")
-        self.assertEqual(C.Options.size, 2)
-        self.assertEqual(C.Options.hello, "country")
-        self.assertEqual(C.Options.other, "another")
+        self.assertEqual(C._options.color, "black")
+        self.assertEqual(C._options.size, 2)
+        self.assertEqual(C._options.hello, "country")
+        self.assertEqual(C._options.other, "another")
 
         # From B
-        self.assertEqual(D.Options.color, "blue")
-        self.assertEqual(D.Options.size, 3)
+        self.assertEqual(D._options.color, "blue")
+        self.assertEqual(D._options.size, 3)
 
         # From C
-        self.assertEqual(D.Options.hello, "country")
-        self.assertEqual(D.Options.other, "another")
-        self.assertEqual(D.Options.option2, "o2")
+        self.assertEqual(D._options.hello, "country")
+        self.assertEqual(D._options.other, "another")
+        self.assertEqual(D._options.option2, "o2")
 
         # From D
-        self.assertEqual(D.Options.option1, "other")
+        self.assertEqual(D._options.option1, "other")
