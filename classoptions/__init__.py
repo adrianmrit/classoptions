@@ -2,6 +2,7 @@ class ClassOptionsMetaclass(type):
     """
     Implement namespaced and inheritable metadata at the class level.
     """
+
     meta_attr = "Meta"
     default_meta_attr = "DefaultMeta"
 

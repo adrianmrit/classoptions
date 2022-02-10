@@ -1,4 +1,3 @@
-# classoptions
 ## Description
 Implement namespaced and inheritable metadata at the class level.
 
@@ -12,8 +11,8 @@ Inspired on Meta classes from Django and Django Rest Framework.
 In the example, `DefaultInfo` holds metadata that is inherited by subclasses, while `Info` holds
 class specific metadata.
 ```python
-from classoptions import get_options_metaclass
-EmployeesInfoMetaclass = get_options_metaclass("EmployeesInfoMetaclass", "Info", "DefaultInfo")
+from classoptions import ClassOptionsMetaclass
+EmployeesInfoMetaclass = ClassOptionsMetaclass.factory("Info", "DefaultInfo")
 
 class Pizza(metaclass=EmployeesInfoMetaclass):
     class DefaultInfo:
@@ -40,7 +39,7 @@ print(HawaiianPizza.Info.notes)
 print("Private Note:")
 print(HawaiianPizza.Info.private_note)
 ```
-#### Output:
+Outputs:
 ```text
 Hawaiian Pizza:
 Ingredients: cheese, ham, pineapple
@@ -57,8 +56,8 @@ If planning a party, ask first if people like it.
 Works similar to python inheritance, except we don't need to explicitly inherit from the parent class.
 
 ```python
-from classoptions import get_options_metaclass
-OptionsMetaclass = get_options_metaclass("OptionsMetaclass", "Options", "DefaultOptions")
+from classoptions import ClassOptionsMetaclass
+OptionsMetaclass = ClassOptionsMetaclass.factory("Options", "DefaultOptions")
 
 class A(metaclass=OptionsMetaclass):
     class DefaultOptions:
@@ -98,8 +97,7 @@ print("hello:", E.Options.hello)
 print("\nInherited from A")
 print("i_like_pizza:", E.Options.i_like_pizza)
 ```
-
-#### Output:
+Outputs:
 ```text
 E custom options
 i_like_hawaiian_pizza: maybe
