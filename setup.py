@@ -1,12 +1,18 @@
 import setuptools
+from distutils.util import convert_path
 
 with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
+version = {}
+ver_path = convert_path("classoptions/version.py")
+with open(ver_path) as ver_file:
+    exec(ver_file.read(), version)
+
 setuptools.setup(
     name="classoptions",
-    version="0.1",
-    author="Adrian Martinez Rodriguez",
+    version=version["__version__"],
+    author=version["__author__"],
     author_email="adrianmrit@gmail.com",
     description="Implement namespaced and inheritable metadata at the class level.",
     long_description=long_description,

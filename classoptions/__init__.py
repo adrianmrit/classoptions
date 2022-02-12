@@ -1,4 +1,5 @@
 from typing import Tuple
+from classoptions.version import __version__, __author__, __license__, __copyright__
 
 
 class ClassOptionsMetaclass(type):

@@ -15,15 +15,17 @@ import sys
 
 sys.path.insert(0, os.path.abspath("../../"))
 
+import classoptions
+
 
 # -- Project information -----------------------------------------------------
 
 project = "ClassOptions"
-copyright = "2022, Adrian Martinez Rodriguez"
-author = "Adrian Martinez Rodriguez"
+copyright = classoptions.__copyright__
+author = classoptions.__author__
 
 # The full version, including alpha/beta/rc tags
-release = "1.00"
+release = classoptions.__version__
 
 
 # -- General configuration ---------------------------------------------------
